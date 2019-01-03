@@ -20,6 +20,12 @@ $consume = function (InputInterface $input, OutputInterface $output) : void {
 
     $ack = 0;
     $nack = 0;
+    $unack = 0;
+
+    if (!$client->isConnected()) {
+        $client->connect();
+        $output->writeln("Connected");
+    }
 
     subscribe:
 
@@ -31,7 +37,10 @@ $consume = function (InputInterface $input, OutputInterface $output) : void {
         $frame = $stomp->read();
 
         if ($frame instanceof Frame) {
-            if (random_int(1, 10) <= 5) {
+            if (random_int(1, 10) <= 1) {
+                $unack++;
+                $output->write("Did not acknowledge {$frame->body}");
+            } elseif (random_int(1, 10) <= 5) {
                 $stomp->ack($frame);
                 $ack++;
                 $output->write("Consumed {$frame->body}");
@@ -40,12 +49,17 @@ $consume = function (InputInterface $input, OutputInterface $output) : void {
                 $nack++;
                 $output->write("Failed on {$frame->body}");
             }
-            $output->writeln(" (ack {$ack}, nack {$nack})");
+            $output->writeln(" (ack {$ack}, nack {$nack}, unack {$unack})");
         }
 
         if (random_int(1, 10) <= 1) {
-            $stomp->unsubscribe($_ENV['DESTINATION'], $_ENV['SUBSCRIPTION']);
-            $output->writeln("Unsubscribed");
+            if (random_int(1, 10) <= 1) {
+                $client->disconnect(true);
+                $output->writeln("Disconnected");
+            } else {
+                $stomp->unsubscribe($_ENV['DESTINATION'], $_ENV['SUBSCRIPTION']);
+                $output->writeln("Unsubscribed");
+            }
             sleep(3);
             goto subscribe; // Here be dinosaurs.
         }

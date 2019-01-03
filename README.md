@@ -26,3 +26,4 @@ The consumers periodically unsubscribe temporarily, and fail to process messages
 
 - ActiveMQ consumers have periodic duplicate messages, seems to be caused when subscribing to a queue with existing messages.
 - RabbitMQ consumers have periodic 'Subscription not found' crashes.
+- RabbitMQ won't retry unacknowledged messages until the consumer disconnects.
