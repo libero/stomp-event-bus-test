@@ -1,0 +1,50 @@
+version: '3.4'
+
+services:
+    activemq:
+        build:
+            context: .
+            target: activemq
+        ports:
+            - 8161:8161
+    consumer-1a:
+        &Consumer
+        build:
+            context: .
+            target: app
+        environment:
+            &ConsumerEnvironment
+            SUBSCRIPTION: 1a
+            DESTINATION: /queue/consumer.1
+            LOGIN: guest
+            PASSCODE: guest
+            VHOST: /
+            BROKER: tcp://activemq:61613
+        command: >
+            /bin/bash -c '
+                until echo > /dev/tcp/activemq/61613; do sleep 1; done
+                php /app/consume.php
+            '
+        restart: on-failure
+        depends_on:
+            - activemq
+    consumer-1b:
+        <<: *Consumer
+        environment:
+            <<: *ConsumerEnvironment
+            SUBSCRIPTION: 1b
+    consumer-2:
+        <<: *Consumer
+        environment:
+            <<: *ConsumerEnvironment
+            SUBSCRIPTION: 2
+            DESTINATION: /queue/consumer.2
+    send:
+        build:
+            context: .
+            target: app
+        environment:
+            <<: *ConsumerEnvironment
+            TOPIC_ROOT: /topic/
+        entrypoint: php /app/send.php
+        command: ''

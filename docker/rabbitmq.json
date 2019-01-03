@@ -1,0 +1,66 @@
+{
+    "users": [
+        {
+            "name": "guest",
+            "password_hash": "j3nEI4wkYwi89knrIOvah3R1atudFkdamDSWfzoLYPZgXuYw",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": "administrator"
+        }
+    ],
+    "vhosts": [
+        {
+            "name": "/"
+        }
+    ],
+    "permissions": [
+        {
+            "user": "guest",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ],
+    "queues": [
+        {
+            "name": "consumer.1",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "consumer.2",
+            "vhost": "/",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        }
+    ],
+    "bindings": [
+        {
+            "source": "amq.topic",
+            "vhost": "/",
+            "destination": "consumer.1",
+            "destination_type": "queue",
+            "routing_key": "blog-articles.*",
+            "arguments": {}
+        },
+        {
+            "source": "amq.topic",
+            "vhost": "/",
+            "destination": "consumer.1",
+            "destination_type": "queue",
+            "routing_key": "scholarly-articles.*",
+            "arguments": {}
+        },
+        {
+            "source": "amq.topic",
+            "vhost": "/",
+            "destination": "consumer.2",
+            "destination_type": "queue",
+            "routing_key": "scholarly-articles.published",
+            "arguments": {}
+        }
+    ]
+}

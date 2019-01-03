@@ -1,0 +1,6 @@
+{
+    "require": {
+        "stomp-php/stomp-php": "^4.4",
+        "symfony/console": "^4.2"
+    }
+}
